@@ -6,12 +6,14 @@
 #include "Piloto.h"
 #include "ArbolB.h"
 #include "ListaCircularDoble.h"
+#include "ArbolBinario.h"
 
 
 using json = nlohmann::json;
 
 ListaDoble listaMantenimiento;
 ArbolB arbolDisponibles;
+BST arbolPilotos;
 
 void cargarAviones(const std::string& archivo) {
     std::ifstream ifs(archivo);
@@ -58,10 +60,17 @@ void cargarPilotos(const std::string& archivo) {
             piloto["horas_de_vuelo"].get<int>(),
             piloto["tipo_de_licencia"].get<std::string>()
         );
-        if (nuevoPiloto->vuelo == "Disponible") {
-            std::cout << "Insertando piloto " << nuevoPiloto->nombre << " en lista circular doble" << std::endl;
-        }
+        arbolPilotos.insertar(nuevoPiloto);
     }
+
+    std::cout << "Pilotos en preorden:" << std::endl;
+    arbolPilotos.mostrarPreorden();
+
+    std::cout << "\nPilotos en inorden:" << std::endl;
+    arbolPilotos.mostrarInorden();
+
+    std::cout << "\nPilotos en postorden:" << std::endl;
+    arbolPilotos.mostrarPostorden();
 }
 
 void cambiarEstado(const std::string& numeroRegistro, const std::string& nuevoEstado) {
@@ -85,7 +94,8 @@ void mostrarMenu() {
     std::cout << "1. Cargar aviones" << std::endl;
     std::cout << "2. Imprimir aviones disponibles" << std::endl;
     std::cout << "3. Imprimir aviones en mantenimiento" << std::endl;
-    std::cout << "4. Salir" << std::endl;
+    std::cout << "4. Cargar Pilotos" << std::endl;
+    std::cout << "5. Salir" << std::endl;
 }
 
 int main() {
@@ -107,6 +117,9 @@ int main() {
             listaMantenimiento.imprimir();
             break;
         case 4:
+            cargarPilotos("..//archivos_prueba//pilotos.json");
+            break;
+        case 5:
             std::cout << "Saliendo..." << std::endl;
             break;
         default:
