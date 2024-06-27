@@ -1,94 +1,68 @@
-#ifndef LISTA_CIRCULAR_DOBLE_H
-#define LISTA_CIRCULAR_DOBLE_H
+#ifndef LISTA_DOBLE_H
+#define LISTA_DOBLE_H
 
 #include "Avion.h"
-#include "Pasajero.h"
-#include "Nodo.h"
-#include <iostream>
 
-class ListaCircularDoble {
-private:
-    Nodo* cabeza;
-
+class NodoLista {
 public:
-    ListaCircularDoble() : cabeza(nullptr) {}
+    Avion* avion;
+    NodoLista* siguiente;
+    NodoLista* anterior;
 
-    ~ListaCircularDoble() {
-        if (!cabeza) return;
-        Nodo* actual = static_cast<Nodo*>(cabeza->getSiguiente());
-        while (actual != cabeza) {
-            Nodo* siguiente = static_cast<Nodo*>(actual->getSiguiente());
-            delete actual;
-            actual = siguiente;
-        }
-        delete cabeza;
-        cabeza = nullptr;
-    }
+    NodoLista(Avion* avion) : avion(avion), siguiente(nullptr), anterior(nullptr) {}
+};
 
-    Nodo* getCabeza() const {return cabeza;}
+class ListaDoble {
+public:
+    NodoLista* cabeza;
+    NodoLista* cola;
 
-    void insertar(void* dato) {
-        Nodo* nuevo = new Nodo(dato);
+    ListaDoble() : cabeza(nullptr), cola(nullptr) {}
+
+    void insertar(Avion* avion) {
+        NodoLista* nuevo = new NodoLista(avion);
         if (!cabeza) {
-            cabeza = nuevo;
-            nuevo->setSiguiente(nuevo);
-            nuevo->setAnterior(nuevo);
+            cabeza = cola = nuevo;
         } else {
-            Nodo* ultimo = static_cast<Nodo*>(cabeza->getAnterior());
-            ultimo->setSiguiente(nuevo);
-            nuevo->setAnterior(ultimo);
-            nuevo->setSiguiente(cabeza);
-            cabeza->setAnterior(nuevo);
+            cola->siguiente = nuevo;
+            nuevo->anterior = cola;
+            cola = nuevo;
         }
     }
 
-    Avion* eliminarAvion(const std::string& numero_de_registro) {
-        if (!cabeza) return nullptr;
-
-        Nodo* actual = cabeza;
-        Nodo* anterior = nullptr;
-        bool encontrado = false;
-
-        do {
-            Avion* avion = static_cast<Avion*>(actual->getDato());
-            if (avion->numero_de_registro == numero_de_registro) {
-                std::cout << "Avion encontrado" << std::endl;
-                encontrado = true;
+    void eliminar(const std::string& numeroRegistro) {
+        NodoLista* actual = cabeza;
+        while (actual) {
+            if (actual->avion->numero_de_registro == numeroRegistro) {
+                if (actual->anterior) actual->anterior->siguiente = actual->siguiente;
+                if (actual->siguiente) actual->siguiente->anterior = actual->anterior;
+                if (actual == cabeza) cabeza = actual->siguiente;
+                if (actual == cola) cola = actual->anterior;
+                delete actual;
+                return;
             }
-            anterior = actual;
-            actual = static_cast<Nodo*>(actual->getSiguiente());
-        } while (actual != cabeza);
-
-        if (!encontrado) return nullptr;
-
-        if (actual == cabeza && actual->getSiguiente() == cabeza) {
-            cabeza = nullptr;
-        } else {
-            if (actual == cabeza) cabeza = static_cast<Nodo*>(actual->getSiguiente());
-            anterior->setSiguiente(actual->getSiguiente());
-            static_cast<Nodo*>(actual->getSiguiente())->setAnterior(anterior);
+            actual = actual->siguiente;
         }
-        Avion* avion = static_cast<Avion*>(actual->getDato());
-        delete actual;
-        return avion;
     }
 
-    void mostrarAviones() const {
-        if (!cabeza) {
-            std::cout << "Lista vacía." << std::endl;
-            return;
+    Avion* buscar(const std::string& numeroRegistro) {
+        NodoLista* actual = cabeza;
+        while (actual) {
+            if (actual->avion->numero_de_registro == numeroRegistro) {
+                return actual->avion;
+            }
+            actual = actual->siguiente;
         }
-        Nodo* actual = cabeza;
-        do {
-            Avion* avion = static_cast<Avion*>(actual->getDato());
-            std::cout << "Numero de Registro: " << avion->numero_de_registro << ", Modelo: " << avion->modelo << ", Estado: " << avion->estado << std::endl;
-            actual = static_cast<Nodo*>(actual->getSiguiente());
-        } while (actual != cabeza);
+        return nullptr;
     }
 
-    bool estaVacia() const {
-        return cabeza == nullptr;
+    void imprimir() {
+        NodoLista* actual = cabeza;
+        while (actual) {
+            std::cout << "Avion: " << actual->avion->numero_de_registro << ", Modelo: " << actual->avion->modelo << ", Capacidad: " << actual->avion->capacidad << std::endl;
+            actual = actual->siguiente;
+        }
     }
 };
 
-#endif // LISTA_CIRCULAR_DOBLE_H
+#endif // LISTA_DOBLE_H

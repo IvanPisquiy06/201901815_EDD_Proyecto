@@ -1,124 +1,118 @@
+#ifndef ARBOL_B_H
+#define ARBOL_B_H
+
 #include <iostream>
+#include <fstream>
+#include <map>
+#include "Avion.h"
 
-const int MAX_KEYS = 3; // Maximum number of keys in a node
+class NodoB {
+public:
+    bool hoja;
+    int n;
+    std::map<std::string, Avion*> llaves;
+    std::map<int, NodoB*> hijos;
 
-struct Node {
-    int keys[MAX_KEYS];
-    Node* children[MAX_KEYS + 1];
-    int numKeys;
-    bool isLeaf;
+    NodoB(bool hoja) : hoja(hoja), n(0) {}
 };
 
-class BTree {
-private:
-    Node* root;
-
+class ArbolB {
 public:
-    BTree() {
-        root = nullptr;
-    }
+    NodoB* raiz;
 
-    void insert(int key) {
-        if (root == nullptr) {
-            root = createNode();
-            root->keys[0] = key;
-            root->numKeys = 1;
-            root->isLeaf = true;
+    ArbolB() : raiz(nullptr) {}
+
+    void insertar(Avion* avion) {
+        if (!raiz) {
+            raiz = new NodoB(true);
+            raiz->llaves[avion->numero_de_registro] = avion;
+            raiz->n = 1;
         } else {
-            if (root->numKeys == MAX_KEYS) {
-                Node* newRoot = createNode();
-                newRoot->children[0] = root;
-                splitChild(newRoot, 0, root);
-                insertNonFull(newRoot, key);
-                root = newRoot;
+            if (raiz->n == 9) { // Si la raíz está llena
+                NodoB* nuevaRaiz = new NodoB(false);
+                nuevaRaiz->hijos[0] = raiz;
+                dividirHijo(nuevaRaiz, 0, raiz);
+                insertarNoLleno(nuevaRaiz, avion);
+                raiz = nuevaRaiz;
             } else {
-                insertNonFull(root, key);
+                insertarNoLleno(raiz, avion);
             }
         }
     }
 
-    void print() {
-        printNode(root);
-    }
-
-private:
-    Node* createNode() {
-        Node* newNode = new Node;
-        newNode->numKeys = 0;
-        newNode->isLeaf = false;
-        for (int i = 0; i < MAX_KEYS + 1; i++) {
-            newNode->children[i] = nullptr;
+    void dividirHijo(NodoB* nodo, int i, NodoB* y) {
+        NodoB* z = new NodoB(y->hoja);
+        z->n = 4;
+        auto it = y->llaves.begin();
+        std::advance(it, 5);
+        for (int j = 0; j < 4; ++j) {
+            z->llaves[it->first] = it->second;
+            it = y->llaves.erase(it);
         }
-        return newNode;
+        if (!y->hoja) {
+            auto it_h = y->hijos.begin();
+            std::advance(it_h, 5);
+            for (int j = 0; j < 5; ++j) {
+                z->hijos[j] = it_h->second;
+                it_h = y->hijos.erase(it_h);
+            }
+        }
+        y->n = 4;
+        nodo->hijos[i + 1] = z;
+        nodo->llaves[y->llaves.begin()->first] = y->llaves.begin()->second;
+        nodo->n++;
     }
 
-    void insertNonFull(Node* node, int key) {
-        int i = node->numKeys - 1;
-        if (node->isLeaf) {
-            while (i >= 0 && key < node->keys[i]) {
-                node->keys[i + 1] = node->keys[i];
-                i--;
-            }
-            node->keys[i + 1] = key;
-            node->numKeys++;
+    void insertarNoLleno(NodoB* nodo, Avion* avion) {
+        if (nodo->hoja) {
+            nodo->llaves[avion->numero_de_registro] = avion;
+            nodo->n++;
         } else {
-            while (i >= 0 && key < node->keys[i]) {
-                i--;
-            }
-            i++;
-            if (node->children[i]->numKeys == MAX_KEYS) {
-                splitChild(node, i, node->children[i]);
-                if (key > node->keys[i]) {
+            auto it = nodo->llaves.upper_bound(avion->numero_de_registro);
+            int i = std::distance(nodo->llaves.begin(), it);
+            if (nodo->hijos[i]->n == 9) {
+                dividirHijo(nodo, i, nodo->hijos[i]);
+                if (avion->numero_de_registro > nodo->llaves.begin()->first) {
                     i++;
                 }
             }
-            insertNonFull(node->children[i], key);
+            insertarNoLleno(nodo->hijos[i], avion);
         }
     }
 
-    void splitChild(Node* parent, int index, Node* child) {
-        Node* newNode = createNode();
-        newNode->isLeaf = child->isLeaf;
-        newNode->numKeys = MAX_KEYS / 2;
-
-        for (int i = 0; i < MAX_KEYS / 2; i++) {
-            newNode->keys[i] = child->keys[i + MAX_KEYS / 2];
-        }
-
-        if (!child->isLeaf) {
-            for (int i = 0; i < MAX_KEYS / 2 + 1; i++) {
-                newNode->children[i] = child->children[i + MAX_KEYS / 2];
-            }
-        }
-
-        child->numKeys = MAX_KEYS / 2;
-
-        for (int i = parent->numKeys; i > index; i--) {
-            parent->children[i + 1] = parent->children[i];
-        }
-
-        parent->children[index + 1] = newNode;
-
-        for (int i = parent->numKeys - 1; i >= index; i--) {
-            parent->keys[i + 1] = parent->keys[i];
-        }
-
-        parent->keys[index] = child->keys[MAX_KEYS / 2];
-        parent->numKeys++;
+    Avion* buscar(const std::string& numeroRegistro) {
+        return buscarEnNodo(raiz, numeroRegistro);
     }
 
-    void printNode(Node* node) {
-        if (node != nullptr) {
-            for (int i = 0; i < node->numKeys; i++) {
-                std::cout << node->keys[i] << " ";
-            }
-            std::cout << std::endl;
+    Avion* buscarEnNodo(NodoB* nodo, const std::string& numeroRegistro) {
+        auto it = nodo->llaves.find(numeroRegistro);
+        if (it != nodo->llaves.end()) {
+            return it->second;
+        }
+        if (nodo->hoja) {
+            return nullptr;
+        }
+        auto it_h = nodo->llaves.upper_bound(numeroRegistro);
+        int i = std::distance(nodo->llaves.begin(), it_h);
+        return buscarEnNodo(nodo->hijos[i], numeroRegistro);
+    }
 
-            if (!node->isLeaf) {
-                for (int i = 0; i <= node->numKeys; i++) {
-                    printNode(node->children[i]);
-                }
+    void imprimir() {
+        imprimirNodo(raiz);
+    }
+
+private:
+    void imprimirNodo(NodoB* nodo) {
+        if (!nodo) return;
+        for (const auto& llave : nodo->llaves) {
+            std::cout << "Avion: " << llave.second->numero_de_registro << ", Modelo: " << llave.second->modelo << ", Capacidad: " << llave.second->capacidad << std::endl;
+        }
+        if (!nodo->hoja) {
+            for (auto& hijo : nodo->hijos) {
+                imprimirNodo(hijo.second);
             }
         }
     }
 };
+
+#endif // ARBABOL_B_H
