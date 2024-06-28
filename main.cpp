@@ -7,6 +7,7 @@
 #include "ArbolB.h"
 #include "ListaCircularDoble.h"
 #include "ArbolBinario.h"
+#include "TablaHash.h"
 
 
 using json = nlohmann::json;
@@ -14,6 +15,7 @@ using json = nlohmann::json;
 ListaDoble listaMantenimiento;
 ArbolB arbolDisponibles;
 BST arbolPilotos;
+HashTable tablaHash;
 
 void cargarAviones(const std::string& archivo) {
     std::ifstream ifs(archivo);
@@ -61,16 +63,8 @@ void cargarPilotos(const std::string& archivo) {
             piloto["tipo_de_licencia"].get<std::string>()
         );
         arbolPilotos.insertar(nuevoPiloto);
+        tablaHash.insertar(nuevoPiloto);
     }
-
-    std::cout << "Pilotos en preorden:" << std::endl;
-    arbolPilotos.mostrarPreorden();
-
-    std::cout << "\nPilotos en inorden:" << std::endl;
-    arbolPilotos.mostrarInorden();
-
-    std::cout << "\nPilotos en postorden:" << std::endl;
-    arbolPilotos.mostrarPostorden();
 }
 
 void cambiarEstado(const std::string& numeroRegistro, const std::string& nuevoEstado) {
@@ -92,10 +86,49 @@ void cambiarEstado(const std::string& numeroRegistro, const std::string& nuevoEs
 void mostrarMenu() {
     std::cout << "Menu de opciones:" << std::endl;
     std::cout << "1. Cargar aviones" << std::endl;
-    std::cout << "2. Imprimir aviones disponibles" << std::endl;
-    std::cout << "3. Imprimir aviones en mantenimiento" << std::endl;
-    std::cout << "4. Cargar Pilotos" << std::endl;
-    std::cout << "5. Salir" << std::endl;
+    std::cout << "2. Cargar Pilotos" << std::endl;
+    std::cout << "3. Imprimir aviones disponibles" << std::endl;
+    std::cout << "4. Imprimir aviones en mantenimiento" << std::endl;
+    std::cout << "5. Menu Pilotos" << std::endl;
+    std::cout << "6. Salir" << std::endl;
+}
+
+void mostrarMenuPilotos(){
+    std::cout << "----Seleccione el recorrido----" << std::endl;
+    std::cout << "1. Preorden" << std::endl;
+    std::cout << "2. Inorden" << std::endl;
+    std::cout << "3. Postorden" << std::endl;
+    std::cout << "4. Salir" << std::endl;
+}
+
+void menuPilotos(){
+    int opcion;
+    while (true)
+    {
+        mostrarMenuPilotos();
+        std::cin >> opcion;
+        switch (opcion)
+        {
+        case 1:
+            std::cout << "Pilotos en preorden:" << std::endl;
+            arbolPilotos.mostrarPreorden();
+            break;
+        case 2:
+            std::cout << "Pilotos en inorden:" << std::endl;
+            arbolPilotos.mostrarInorden();
+            break;
+        case 3:
+            std::cout << "Pilotos en postorden:" << std::endl;
+            arbolPilotos.mostrarPostorden();
+            break;
+        case 4:
+            return;
+        default:
+            std::cout << "Opcion invalida, intenta de nuevo." << std::endl;
+            break;
+        }
+    }
+    
 }
 
 int main() {
@@ -111,21 +144,24 @@ int main() {
             cargarAviones(archivoAviones);
             break;
         case 2:
-            arbolDisponibles.imprimir();
-            break;
-        case 3:
-            listaMantenimiento.imprimir();
-            break;
-        case 4:
             cargarPilotos("..//archivos_prueba//pilotos.json");
             break;
+        case 3:
+            arbolDisponibles.imprimir();
+            break;
+        case 4:
+            listaMantenimiento.imprimir();
+            break;
         case 5:
+            menuPilotos();
+            break;
+        case 6:
             std::cout << "Saliendo..." << std::endl;
             break;
         default:
             std::cout << "Opcion invalida, intenta de nuevo." << std::endl;
         }
-    } while (opcion != 4);
+    } while (opcion != 6);
 
     return 0;
 }
