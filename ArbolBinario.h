@@ -24,27 +24,43 @@ private:
         }
     }
 
-    void preorden(NodoBST* nodo) {
+    void preorden(NodoBST* nodo, std::ofstream& archivo) {
         if (nodo != nullptr) {
-            std::cout << nodo->piloto->nombre << " - " << nodo->piloto->horas_de_vuelo << " horas" << std::endl;
-            preorden(nodo->izquierda);
-            preorden(nodo->derecha);
+            archivo << nodo->piloto->horas_de_vuelo << " [label=\"" << nodo->piloto->nombre << " - " << nodo->piloto->horas_de_vuelo << " horas\"];\n";
+            if (nodo->izquierda != nullptr) {
+                archivo << nodo->piloto->horas_de_vuelo << " -> " << nodo->izquierda->piloto->horas_de_vuelo << ";\n";
+                preorden(nodo->izquierda, archivo);
+            }
+            if (nodo->derecha != nullptr) {
+                archivo << nodo->piloto->horas_de_vuelo << " -> " << nodo->derecha->piloto->horas_de_vuelo << ";\n";
+                preorden(nodo->derecha, archivo);
+            }
         }
     }
 
-    void inorden(NodoBST* nodo) {
+    void inorden(NodoBST* nodo, std::ofstream& archivo) {
         if (nodo != nullptr) {
-            inorden(nodo->izquierda);
-            std::cout << nodo->piloto->nombre << " - " << nodo->piloto->horas_de_vuelo << " horas" << std::endl;
-            inorden(nodo->derecha);
+            if (nodo->izquierda != nullptr) {
+                inorden(nodo->izquierda, archivo);
+                archivo << nodo->izquierda->piloto->horas_de_vuelo << " -> " << nodo->piloto->horas_de_vuelo << ";\n";
+            }
+            archivo << nodo->piloto->horas_de_vuelo << " [label=\"" << nodo->piloto->nombre << " - " << nodo->piloto->horas_de_vuelo << " horas\"];\n";
+            if (nodo->derecha != nullptr) {
+                inorden(nodo->derecha, archivo);
+                archivo << nodo->piloto->horas_de_vuelo << " -> " << nodo->derecha->piloto->horas_de_vuelo << ";\n";
+            }
         }
     }
 
-    void postorden(NodoBST* nodo) {
+    void postorden(NodoBST* nodo, std::ofstream& archivo) {
         if (nodo != nullptr) {
-            postorden(nodo->izquierda);
-            postorden(nodo->derecha);
-            std::cout << nodo->piloto->nombre << " - " << nodo->piloto->horas_de_vuelo << " horas" << std::endl;
+            if (nodo->izquierda != nullptr) {
+                postorden(nodo->izquierda, archivo);
+            }
+            if (nodo->derecha != nullptr) {
+                postorden(nodo->derecha, archivo);
+            }
+            archivo << nodo->piloto->horas_de_vuelo << " [label=\"" << nodo->piloto->nombre << " - " << nodo->piloto->horas_de_vuelo << " horas\"];\n";
         }
     }
 
@@ -69,14 +85,62 @@ public:
     }
 
     void mostrarPreorden() {
-        preorden(raiz);
+        mostrarPreorden(raiz);
     }
 
     void mostrarInorden() {
-        inorden(raiz);
+        mostrarInorden(raiz);
     }
 
     void mostrarPostorden() {
-        postorden(raiz);
+        mostrarPostorden(raiz);
+    }
+
+    void mostrarPreorden(NodoBST* nodo) {
+        if (nodo != nullptr) {
+            std::cout << nodo->piloto->nombre << " - " << nodo->piloto->horas_de_vuelo << " horas" << std::endl;
+            mostrarPreorden(nodo->izquierda);
+            mostrarPreorden(nodo->derecha);
+        }
+    }
+
+    void mostrarInorden(NodoBST* nodo) {
+        if (nodo != nullptr) {
+            mostrarInorden(nodo->izquierda);
+            std::cout << nodo->piloto->nombre << " - " << nodo->piloto->horas_de_vuelo << " horas" << std::endl;
+            mostrarInorden(nodo->derecha);
+        }
+    }
+
+    void mostrarPostorden(NodoBST* nodo) {
+        if (nodo != nullptr) {
+            mostrarPostorden(nodo->izquierda);
+            mostrarPostorden(nodo->derecha);
+            std::cout << nodo->piloto->nombre << " - " << nodo->piloto->horas_de_vuelo << " horas" << std::endl;
+        }
+    }
+
+    void generarDotPreorden(const std::string& nombreArchivo) {
+        std::ofstream archivo(nombreArchivo);
+        archivo << "digraph BST {\n";
+        preorden(raiz, archivo);
+        archivo << "}\n";
+        archivo.close();
+    }
+
+    void generarDotInorden(const std::string& nombreArchivo) {
+        std::ofstream archivo(nombreArchivo);
+        archivo << "digraph BST {\n";
+        inorden(raiz, archivo);
+        archivo << "}\n";
+        archivo.close();
+    }
+
+    void generarDotPostorden(const std::string& nombreArchivo) {
+        std::ofstream archivo(nombreArchivo);
+        archivo << "digraph BST {\n";
+        postorden(raiz, archivo);
+        archivo << "}\n";
+        archivo.close();
     }
 };

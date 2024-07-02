@@ -121,6 +121,26 @@ public:
             }
         }
     }
+
+    void generarDot(const std::string& nombreArchivo) {
+        std::ofstream archivo(nombreArchivo);
+        archivo << "digraph HashTable {\n";
+        archivo << "rankdir=LR;\n";
+        archivo << "node [shape=record];\n";
+        for (int i = 0; i < capacidad; i++) {
+            archivo << "node" << i << " [label=\"<f0> " << i << " |";
+            HashNode* nodo = tabla[i];
+            int j = 1;
+            while (nodo != nullptr) {
+                archivo << "<f" << j << "> " << nodo->piloto->numero_de_id << " (" << nodo->piloto->nombre << ") |";
+                nodo = nodo->siguiente;
+                j++;
+            }
+            archivo << "<f" << j << "> nullptr\"];\n";
+        }
+        archivo << "}\n";
+        archivo.close();
+    }
 };
 
 #endif

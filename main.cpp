@@ -8,7 +8,7 @@
 #include "ListaCircularDoble.h"
 #include "ArbolBinario.h"
 #include "TablaHash.h"
-
+#include "Grafo.h"
 
 using json = nlohmann::json;
 
@@ -16,6 +16,7 @@ ListaDoble listaMantenimiento;
 ArbolB arbolDisponibles;
 BST arbolPilotos;
 HashTable tablaHash;
+Grafo grafo;
 
 void cargarAviones(const std::string& archivo) {
     std::ifstream ifs(archivo);
@@ -87,10 +88,11 @@ void mostrarMenu() {
     std::cout << "Menu de opciones:" << std::endl;
     std::cout << "1. Cargar aviones" << std::endl;
     std::cout << "2. Cargar Pilotos" << std::endl;
-    std::cout << "3. Imprimir aviones disponibles" << std::endl;
-    std::cout << "4. Imprimir aviones en mantenimiento" << std::endl;
-    std::cout << "5. Menu Pilotos" << std::endl;
-    std::cout << "6. Salir" << std::endl;
+    std::cout << "3. Cargar de Rutas" << std::endl;
+    std::cout << "4. Imprimir aviones disponibles" << std::endl;
+    std::cout << "5. Imprimir aviones en mantenimiento" << std::endl;
+    std::cout << "6. Menu Pilotos" << std::endl;
+    std::cout << "7. Salir" << std::endl;
 }
 
 void mostrarMenuPilotos(){
@@ -147,21 +149,26 @@ int main() {
             cargarPilotos("..//archivos_prueba//pilotos.json");
             break;
         case 3:
-            arbolDisponibles.imprimir();
+            grafo.cargarRutasDesdeArchivo("..//archivos_prueba//rutas.txt");
+            std::cout << "Mapa de rutas:" << std::endl;
+            grafo.mostrarGrafo();
             break;
         case 4:
-            listaMantenimiento.imprimir();
+            arbolDisponibles.imprimir();
             break;
         case 5:
-            menuPilotos();
+            listaMantenimiento.imprimir();
             break;
         case 6:
+            menuPilotos();
+            break;
+        case 7:
             std::cout << "Saliendo..." << std::endl;
             break;
         default:
             std::cout << "Opcion invalida, intenta de nuevo." << std::endl;
         }
-    } while (opcion != 6);
+    } while (opcion != 7);
 
     return 0;
 }
