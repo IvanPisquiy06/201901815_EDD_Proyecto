@@ -5,3 +5,8 @@ Granada/Sevilla/256;
 Sevilla/Jaen/242;
 Jaen/Sevilla/242;
 Granada/Jaen/99;
+Guatemala/Peru/200;
+Guatemala/Jaen/400;
+Jaen/Valencia/100;
+Valencia/Cayala/20;
+Granada/USAC/400;

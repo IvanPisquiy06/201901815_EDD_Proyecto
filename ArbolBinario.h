@@ -1,5 +1,6 @@
 #include "Piloto.h"
 #include <iostream>
+#include <fstream>
 
 class NodoBST {
 public:
@@ -123,6 +124,7 @@ public:
     void generarDotPreorden(const std::string& nombreArchivo) {
         std::ofstream archivo(nombreArchivo);
         archivo << "digraph BST {\n";
+        archivo << "node [shape=circle];\n";
         preorden(raiz, archivo);
         archivo << "}\n";
         archivo.close();
@@ -131,6 +133,7 @@ public:
     void generarDotInorden(const std::string& nombreArchivo) {
         std::ofstream archivo(nombreArchivo);
         archivo << "digraph BST {\n";
+        archivo << "node [shape=circle];\n";
         inorden(raiz, archivo);
         archivo << "}\n";
         archivo.close();
@@ -139,6 +142,7 @@ public:
     void generarDotPostorden(const std::string& nombreArchivo) {
         std::ofstream archivo(nombreArchivo);
         archivo << "digraph BST {\n";
+        archivo << "node [shape=circle];\n";
         postorden(raiz, archivo);
         archivo << "}\n";
         archivo.close();

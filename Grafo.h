@@ -67,23 +67,6 @@ public:
         }
     }
 
-    void cargarRutasDesdeArchivo(std::string nombreArchivo) {
-        std::ifstream archivo(nombreArchivo);
-        std::string linea;
-        while (std::getline(archivo, linea)) {
-            std::stringstream ss(linea);
-            std::string origen, destino, distanciaStr;
-            std::getline(ss, origen, '/');
-            std::getline(ss, destino, '/');
-            std::getline(ss, distanciaStr, ';');
-            int distancia = std::stoi(distanciaStr);
-
-            agregarVertice(origen);
-            agregarVertice(destino);
-            agregarArista(origen, destino, distancia);
-        }
-    }
-
     void mostrarGrafo() {
         Vertice* temp = vertices;
         while (temp != nullptr) {
