@@ -63,6 +63,24 @@ public:
             actual = actual->siguiente;
         }
     }
+
+    void generarDot(const std::string& nombreArchivo) {
+        std::ofstream archivo(nombreArchivo);
+        archivo << "digraph ListaDoble {\n";
+        archivo << "rankdir=LR;\n";
+        archivo << "node [shape=record];\n";
+        NodoLista* actual = cabeza;
+        while (actual) {
+            archivo << "\"" << actual << "\" [label=\"{" << actual->avion->numero_de_registro << " | " << actual->avion->modelo << " | " << actual->avion->capacidad << "}\"];\n";
+            if (actual->siguiente) {
+                archivo << "\"" << actual << "\" -> \"" << actual->siguiente << "\";\n";
+                archivo << "\"" << actual->siguiente << "\" -> \"" << actual << "\";\n";
+            }
+            actual = actual->siguiente;
+        }
+        archivo << "}\n";
+        archivo.close();
+    }
 };
 
 #endif // LISTA_DOBLE_H

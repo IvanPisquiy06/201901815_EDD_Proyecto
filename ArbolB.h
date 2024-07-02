@@ -101,6 +101,15 @@ public:
         imprimirNodo(raiz);
     }
 
+    void generarDot(const std::string& nombreArchivo) {
+        std::ofstream archivo(nombreArchivo);
+        archivo << "digraph BTree {\n";
+        archivo << "node [shape=record];\n";
+        generarDotNodo(raiz, archivo);
+        archivo << "}\n";
+        archivo.close();
+    }
+
 private:
     void imprimirNodo(NodoB* nodo) {
         if (!nodo) return;
@@ -110,6 +119,24 @@ private:
         if (!nodo->hoja) {
             for (auto& hijo : nodo->hijos) {
                 imprimirNodo(hijo.second);
+            }
+        }
+    }
+
+    void generarDotNodo(NodoB* nodo, std::ofstream& archivo) {
+        if (!nodo) return;
+
+        archivo << "\"" << nodo << "\" [label=\"";
+        for (auto it = nodo->llaves.begin(); it != nodo->llaves.end(); ++it) {
+            if (it != nodo->llaves.begin()) archivo << "|";
+            archivo << "<f" << std::distance(nodo->llaves.begin(), it) << ">" << it->second->numero_de_registro;
+        }
+        archivo << "\"];\n";
+
+        if (!nodo->hoja) {
+            for (auto it = nodo->hijos.begin(); it != nodo->hijos.end(); ++it) {
+                archivo << "\"" << nodo << "\":f" << it->first << " -> \"" << it->second << "\";\n";
+                generarDotNodo(it->second, archivo);
             }
         }
     }
